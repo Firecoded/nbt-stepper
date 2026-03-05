@@ -54,10 +54,10 @@ export default function PreferencesStep() {
   };
 
   return (
-    <div className="rounded-3xl border border-nbt-border bg-nbt-surface p-6 shadow-xl sm:p-8">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-nbt-text sm:text-2xl">What describes you?</h2>
-        <p className="mt-1 text-base text-nbt-muted sm:text-sm">
+    <div className="rounded-3xl border border-nbt-border bg-nbt-surface p-6 shadow-xl sm:p-12">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-3xl font-bold text-nbt-text sm:text-4xl">What describes you?</h2>
+        <p className="mt-1 text-base text-nbt-muted sm:mt-2 sm:text-xl">
           Help us personalise your experience.
         </p>
       </div>
@@ -65,7 +65,7 @@ export default function PreferencesStep() {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
         {/* Role selector */}
         <div>
-          <p className="mb-3 text-base font-medium text-nbt-text sm:text-sm">I am a...</p>
+          <p className="mb-3 text-base font-medium text-nbt-text sm:text-lg">I am a...</p>
           <Controller
             name="role"
             control={control}
@@ -81,14 +81,14 @@ export default function PreferencesStep() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
                       className={clsx(
-                        'flex cursor-pointer items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200',
+                        'flex cursor-pointer items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-200 sm:p-5',
                         selected
                           ? 'border-nbt-primary bg-nbt-primary/10 shadow-md shadow-nbt-primary/20'
                           : 'border-nbt-border bg-nbt-surface-2 hover:border-nbt-primary/40',
                       )}
                     >
-                      <span className="text-2xl">{ROLE_ICONS[role]}</span>
-                      <span className={clsx('text-base font-semibold sm:text-sm', selected ? 'text-nbt-text' : 'text-nbt-muted')}>
+                      <span className="text-2xl sm:text-3xl">{ROLE_ICONS[role]}</span>
+                      <span className={clsx('text-base font-semibold sm:text-lg', selected ? 'text-nbt-text' : 'text-nbt-muted')}>
                         {role}
                       </span>
                       {selected && (
@@ -117,7 +117,7 @@ export default function PreferencesStep() {
 
         {/* Interests multi-select */}
         <div>
-          <p className="mb-3 text-base font-medium text-nbt-text sm:text-sm">
+          <p className="mb-3 text-base font-medium text-nbt-text sm:text-lg">
             I care about... <span className="text-nbt-muted">(pick at least one)</span>
           </p>
           <Controller
@@ -140,7 +140,7 @@ export default function PreferencesStep() {
                         field.onChange(next);
                       }}
                       className={clsx(
-                        'cursor-pointer rounded-full border px-4 py-2 text-base font-medium transition-all duration-200 sm:py-1.5 sm:text-sm',
+                        'cursor-pointer rounded-full border px-4 py-2 text-base font-medium transition-all duration-200 sm:px-5 sm:py-2.5 sm:text-base',
                         selected
                           ? 'border-nbt-secondary bg-nbt-secondary/15 text-nbt-text shadow-sm shadow-nbt-secondary/20'
                           : 'border-nbt-border bg-nbt-surface-2 text-nbt-muted hover:border-nbt-secondary/50',

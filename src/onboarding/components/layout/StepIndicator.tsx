@@ -53,7 +53,7 @@ export default function StepIndicator() {
                   }}
                   transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   className={clsx(
-                    'flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold sm:h-8 sm:w-8 sm:text-xs',
+                    'flex h-11 w-11 items-center justify-center rounded-full text-sm font-bold sm:h-14 sm:w-14 sm:text-base',
                     isCompleted || isActive
                       ? 'bg-gradient-to-br from-nbt-primary to-nbt-secondary text-white'
                       : 'border-2 border-nbt-border bg-nbt-surface text-nbt-text',
@@ -87,7 +87,7 @@ export default function StepIndicator() {
             {i < STEPS.length - 1 && (
               <motion.div
                 variants={connectorVariants}
-                className="h-px w-16 origin-left sm:w-16"
+                className="h-px w-16 origin-left sm:w-28"
                 animate={{
                   background: isCompleted
                     ? 'linear-gradient(90deg, #6366f1, #a855f7)'

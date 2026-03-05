@@ -122,10 +122,10 @@ export default function IdentityStep() {
     ) : null;
 
   return (
-    <div className="rounded-3xl border border-nbt-border bg-nbt-surface p-6 shadow-xl sm:p-8">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-nbt-text sm:text-2xl">Create your identity</h2>
-        <p className="mt-1 text-base text-nbt-muted sm:text-sm">
+    <div className="rounded-3xl border border-nbt-border bg-nbt-surface p-6 shadow-xl sm:p-12">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-3xl font-bold text-nbt-text sm:text-4xl">Create your identity</h2>
+        <p className="mt-1 text-base text-nbt-muted sm:mt-2 sm:text-xl">
           Choose an avatar and claim your unique screen name.
         </p>
       </div>
@@ -133,7 +133,7 @@ export default function IdentityStep() {
       <div className="flex flex-col gap-6">
         {/* Avatar picker */}
         <div>
-          <p className="mb-3 text-base font-medium text-nbt-text sm:text-sm">Pick your avatar</p>
+          <p className="mb-3 text-base font-medium text-nbt-text sm:text-lg">Pick your avatar</p>
           <div className="grid grid-cols-4 gap-3">
             {AVATARS.map((avatar) => {
               const selected = selectedAvatar === avatar.id;
@@ -151,8 +151,8 @@ export default function IdentityStep() {
                       : 'border-nbt-border bg-nbt-surface-2 hover:border-nbt-primary/40',
                   )}
                 >
-                  <img src={avatar.src} alt={avatar.label} className="h-12 w-12 rounded-full" />
-                  <span className={clsx('text-xs font-medium', selected ? 'text-nbt-text' : 'text-nbt-muted')}>
+                  <img src={avatar.src} alt={avatar.label} className="h-12 w-12 rounded-full sm:h-16 sm:w-16" />
+                  <span className={clsx('text-xs font-medium sm:text-sm', selected ? 'text-nbt-text' : 'text-nbt-muted')}>
                     {avatar.label}
                   </span>
                   {selected && (

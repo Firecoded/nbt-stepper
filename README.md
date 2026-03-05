@@ -2,7 +2,7 @@
 
 A multi-step onboarding wizard built as a frontend take-home project. Demonstrates form validation, async interactions, state persistence, animations, and an architecture designed for easy backend integration.
 
-**Live demo:** [https://your-netlify-url.netlify.app](https://your-netlify-url.netlify.app)
+**Live demo:** [https://nbt-demo.netlify.app](https://nbt-demo.netlify.app)
 
 ---
 
@@ -14,6 +14,11 @@ npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173).
+
+```bash
+npm test          # run all tests once
+npm run test:watch  # watch mode
+```
 
 ---
 
@@ -28,6 +33,7 @@ Open [http://localhost:5173](http://localhost:5173).
 | **React Hook Form + Zod** | Performant form state with schema-driven validation |
 | **TanStack Query (React Query)** | Data fetching layer — queries and mutations are ready to point at real endpoints |
 | **Framer Motion** | Page transitions, step animations, and micro-interactions |
+| **Vitest** | Unit tests for validation schemas and hooks, co-located with source files |
 
 ---
 
@@ -43,14 +49,14 @@ src/
 │   │   └── steps/     # One component per wizard step
 │   ├── context/       # OnboardingContext — global wizard state
 │   ├── queries/       # React Query hooks (useOnboardingProgress, useSubmitOnboarding, etc.)
-│   ├── schemas/       # Zod validation schemas per step
+│   ├── schemas/       # Zod validation schemas per step (*.test.ts co-located)
 │   └── types/         # Shared TypeScript types
 │
 ├── shared/
 │   ├── components/
 │   │   ├── ui/        # Reusable primitives: Button, Input, Toaster, ErrorView
 │   │   └── dev/       # DevPanel (dev/demo tool, excluded from prod builds)
-│   ├── hooks/         # useDebounce
+│   ├── hooks/         # useDebounce (*.test.ts co-located)
 │   ├── lib/           # promiseDelay
 │   └── services/      # localStorageService
 │

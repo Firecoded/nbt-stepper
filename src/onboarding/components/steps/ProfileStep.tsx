@@ -43,15 +43,15 @@ export default function ProfileStep() {
   };
 
   return (
-    <div className="rounded-3xl border border-nbt-border bg-nbt-surface p-6 shadow-xl sm:p-8">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-nbt-text sm:text-2xl">Tell us about yourself</h2>
-        <p className="mt-1 text-base text-nbt-muted sm:text-sm">
+    <div className="rounded-3xl border border-nbt-border bg-nbt-surface p-6 shadow-xl sm:p-12">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-3xl font-bold text-nbt-text sm:text-4xl">Tell us about yourself</h2>
+        <p className="mt-1 text-base text-nbt-muted sm:mt-2 sm:text-xl">
           This is how your team will know you.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 sm:gap-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             label="First name"

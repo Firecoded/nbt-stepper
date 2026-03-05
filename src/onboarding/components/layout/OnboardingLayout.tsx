@@ -74,15 +74,15 @@ export default function OnboardingLayout() {
       </div>
 
       <div className={clsx(
-        'relative flex w-full max-w-lg',
-        showStepper ? 'h-full flex-col px-4' : '',
+        'relative flex w-full max-w-2xl',
+        showStepper ? 'h-full flex-col px-4 sm:px-8' : '',
       )}>
         {showStepper && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring' as const, stiffness: 300, damping: 24 }}
-            className="shrink-0 py-8 flex justify-center"
+            className="shrink-0 py-8 sm:py-16 flex justify-center"
           >
             <StepIndicator />
           </motion.div>
