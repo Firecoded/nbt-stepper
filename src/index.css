@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --color-nbt-primary: #6366f1;
+  --color-nbt-primary-dark: #4f46e5;
+  --color-nbt-secondary: #a855f7;
+  --color-nbt-accent: #ec4899;
+  --color-nbt-bg: #252540;
+  --color-nbt-surface: #22223a;
+  --color-nbt-surface-2: #21213d;
+  --color-nbt-border: #4a4a70;
+  --color-nbt-text: #f5f4ff;
+  --color-nbt-muted: #b8b7d8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px 4px rgba(99, 102, 241, 0.4), 0 0 40px 8px rgba(168, 85, 247, 0.2); }
+  50%       { box-shadow: 0 0 28px 8px rgba(168, 85, 247, 0.5), 0 0 56px 16px rgba(236, 72, 153, 0.25); }
+}
+
+.btn-cta {
+  background: linear-gradient(270deg, #6366f1, #a855f7, #ec4899, #a855f7, #6366f1);
+  background-size: 300% 300%;
+  animation: gradient-shift 4s ease infinite, glow-pulse 3s ease-in-out infinite;
+}
+
+/* Override browser autofill styles — the only reliable method is an inset box-shadow */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-nbt-surface-2) inset !important;
+  -webkit-text-fill-color: var(--color-nbt-text) !important;
+  caret-color: var(--color-nbt-text);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+body {
+  background-color: var(--color-nbt-bg);
+  color: var(--color-nbt-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100dvh;
+  margin: 0;
+}
