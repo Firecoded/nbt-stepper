@@ -8,6 +8,7 @@ import { useSubmitOnboarding } from '../../queries/useSubmitOnboarding';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
 import NavButtons from '../layout/NavButtons';
 import Input, { type InputState } from '../../../shared/components/ui/Input';
+import AvatarImage from '../../../shared/components/ui/AvatarImage';
 import type { ScreenNameStatus, OnboardingSubmission } from '../../types/onboarding';
 
 import avatar1 from '../../assets/avatars/avatar1.svg';
@@ -15,11 +16,13 @@ import avatar2 from '../../assets/avatars/avatar2.svg';
 import avatar3 from '../../assets/avatars/avatar3.svg';
 import avatar4 from '../../assets/avatars/avatar4.svg';
 
+const DICEBEAR_BASE = 'https://api.dicebear.com/9.x/bottts/svg';
+
 const AVATARS = [
-  { id: 'avatar1', src: avatar1, label: 'Indigo' },
-  { id: 'avatar2', src: avatar2, label: 'Violet' },
-  { id: 'avatar3', src: avatar3, label: 'Rose' },
-  { id: 'avatar4', src: avatar4, label: 'Teal' },
+  { id: 'avatar1', dicebearUrl: `${DICEBEAR_BASE}?seed=Nova`,   fallbackSrc: avatar1 },
+  { id: 'avatar2', dicebearUrl: `${DICEBEAR_BASE}?seed=Rust`,   fallbackSrc: avatar2 },
+  { id: 'avatar3', dicebearUrl: `${DICEBEAR_BASE}?seed=Dune`,   fallbackSrc: avatar3 },
+  { id: 'avatar4', dicebearUrl: `${DICEBEAR_BASE}?seed=Orbit`,  fallbackSrc: avatar4 },
 ];
 
 export default function IdentityStep() {
@@ -151,10 +154,12 @@ export default function IdentityStep() {
                       : 'border-nbt-border bg-nbt-surface-2 hover:border-nbt-primary/40',
                   )}
                 >
-                  <img src={avatar.src} alt={avatar.label} className="h-12 w-12 rounded-full sm:h-16 sm:w-16" />
-                  <span className={clsx('text-xs font-medium sm:text-sm', selected ? 'text-nbt-text' : 'text-nbt-muted')}>
-                    {avatar.label}
-                  </span>
+                  <AvatarImage
+                    dicebearUrl={avatar.dicebearUrl}
+                    fallbackSrc={avatar.fallbackSrc}
+                    alt={`Avatar option ${avatar.id}`}
+                    className="h-16 w-16 sm:h-20 sm:w-20"
+                  />
                   {selected && (
                     <motion.div
                       initial={{ scale: 0 }}

@@ -3,13 +3,22 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useOnboarding } from '../../context/OnboardingContext';
+import AvatarImage from '../../../shared/components/ui/AvatarImage';
+import StarField from '../../../shared/components/ui/StarField';
 
 import avatar1 from '../../assets/avatars/avatar1.svg';
 import avatar2 from '../../assets/avatars/avatar2.svg';
 import avatar3 from '../../assets/avatars/avatar3.svg';
 import avatar4 from '../../assets/avatars/avatar4.svg';
 
-const AVATAR_MAP: Record<string, string> = { avatar1, avatar2, avatar3, avatar4 };
+const DICEBEAR_BASE = 'https://api.dicebear.com/9.x/bottts/svg';
+
+const AVATAR_MAP: Record<string, { dicebearUrl: string; fallbackSrc: string }> = {
+  avatar1: { dicebearUrl: `${DICEBEAR_BASE}?seed=Nova`,  fallbackSrc: avatar1 },
+  avatar2: { dicebearUrl: `${DICEBEAR_BASE}?seed=Rust`,  fallbackSrc: avatar2 },
+  avatar3: { dicebearUrl: `${DICEBEAR_BASE}?seed=Dune`,  fallbackSrc: avatar3 },
+  avatar4: { dicebearUrl: `${DICEBEAR_BASE}?seed=Orbit`, fallbackSrc: avatar4 },
+};
 
 const containerVariants = {
   hidden: {},
@@ -57,39 +66,43 @@ export default function FinishStep() {
     navigate('/welcome');
   };
 
-  const avatarSrc = formData.identity?.avatarId
+  const avatar = formData.identity?.avatarId
     ? AVATAR_MAP[formData.identity.avatarId]
     : null;
 
   return (
-    <div className="flex w-full flex-col items-center px-4 pt-12 sm:pt-16">
+    <div className="flex w-full flex-col items-center px-4 pt-12 sm:pt-20">
+      <StarField />
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="flex w-full max-w-lg flex-col items-center gap-6"
+        className="flex w-full max-w-2xl flex-col items-center gap-8 sm:gap-10"
       >
         {/* Hero */}
-        <motion.div variants={itemVariants} className="flex flex-col items-center gap-3 text-center">
-          {avatarSrc && (
+        <motion.div variants={itemVariants} className="flex flex-col items-center gap-4 text-center sm:gap-6">
+          {avatar && (
             <div className="relative">
-              <img
-                src={avatarSrc}
-                alt="Your avatar"
-                className="h-24 w-24 rounded-full ring-4 ring-nbt-primary/50 shadow-2xl shadow-nbt-primary/30"
-              />
+              <div className="rounded-3xl bg-gradient-to-br from-nbt-primary/20 to-nbt-secondary/20 p-3 shadow-2xl shadow-nbt-primary/20 ring-1 ring-nbt-primary/30 sm:p-4">
+                <AvatarImage
+                  dicebearUrl={avatar.dicebearUrl}
+                  fallbackSrc={avatar.fallbackSrc}
+                  alt="Your avatar"
+                  className="h-24 w-24 sm:h-36 sm:w-36"
+                />
+              </div>
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.6, type: 'spring' as const, stiffness: 400, damping: 15 }}
-                className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-sm shadow-lg"
+                className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-sm shadow-lg sm:h-10 sm:w-10 sm:text-base"
               >
                 ✓
               </motion.div>
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-black text-nbt-text sm:text-4xl">
+            <h1 className="text-3xl font-black text-nbt-text sm:text-5xl">
               Welcome aboard
               {formData.identity?.screenName && (
                 <>
@@ -101,37 +114,37 @@ export default function FinishStep() {
               )}
               !
             </h1>
-            <p className="mt-2 text-nbt-muted">You're all set. Your account has been created.</p>
+            <p className="mt-2 text-nbt-muted sm:mt-3 sm:text-xl">You're all set. Your account has been created.</p>
           </div>
         </motion.div>
 
         {/* Summary cards */}
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-3 sm:space-y-4">
           {formData.profile && (
             <motion.div
               variants={itemVariants}
-              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4"
+              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
             >
-              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted">Profile</p>
-              <p className="font-semibold text-nbt-text">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Profile</p>
+              <p className="font-semibold text-nbt-text sm:text-lg">
                 {formData.profile.firstName} {formData.profile.lastName}
               </p>
-              <p className="text-sm text-nbt-muted">{formData.profile.email}</p>
+              <p className="text-sm text-nbt-muted sm:text-base">{formData.profile.email}</p>
             </motion.div>
           )}
 
           {formData.preferences && (
             <motion.div
               variants={itemVariants}
-              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4"
+              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
             >
-              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted">Preferences</p>
-              <p className="font-semibold text-nbt-text">{formData.preferences.role}</p>
-              <div className="mt-1 flex flex-wrap gap-1.5">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Preferences</p>
+              <p className="font-semibold text-nbt-text sm:text-lg">{formData.preferences.role}</p>
+              <div className="mt-1 flex flex-wrap gap-1.5 sm:mt-2 sm:gap-2">
                 {formData.preferences.interests.map((interest) => (
                   <span
                     key={interest}
-                    className="rounded-full border border-nbt-border bg-nbt-surface-2 px-2.5 py-0.5 text-xs text-nbt-muted"
+                    className="rounded-full border border-nbt-border bg-nbt-surface-2 px-2.5 py-0.5 text-xs text-nbt-muted sm:px-3 sm:py-1 sm:text-sm"
                   >
                     {interest}
                   </span>
@@ -143,10 +156,10 @@ export default function FinishStep() {
           {formData.identity && (
             <motion.div
               variants={itemVariants}
-              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4"
+              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
             >
-              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted">Identity</p>
-              <p className="font-semibold text-nbt-text">@{formData.identity.screenName}</p>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Identity</p>
+              <p className="font-semibold text-nbt-text sm:text-lg">@{formData.identity.screenName}</p>
             </motion.div>
           )}
         </div>
@@ -156,7 +169,7 @@ export default function FinishStep() {
             onClick={handleStartOver}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="cursor-pointer rounded-xl border border-nbt-border bg-nbt-surface-2 px-6 py-2.5 text-sm font-medium text-nbt-muted transition-colors hover:border-nbt-primary/40 hover:text-nbt-text"
+            className="cursor-pointer rounded-xl border border-nbt-border bg-nbt-surface-2 px-6 py-2.5 text-sm font-medium text-nbt-muted transition-colors hover:border-nbt-primary/40 hover:text-nbt-text sm:px-8 sm:py-3 sm:text-base"
           >
             Restart Onboarding
           </motion.button>
