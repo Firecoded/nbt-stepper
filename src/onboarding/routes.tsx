@@ -1,24 +1,17 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import OnboardingLayout from './components/layout/OnboardingLayout';
-import WelcomeStep from './components/steps/WelcomeStep';
-import ProfileStep from './components/steps/ProfileStep';
-import PreferencesStep from './components/steps/PreferencesStep';
-import IdentityStep from './components/steps/IdentityStep';
-import FinishStep from './components/steps/FinishStep';
+import { STEP_CONFIG, WELCOME_PATH } from './config/steps';
 
 export const onboardingRouter = createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to="/welcome" replace />,
+    element: <Navigate to={WELCOME_PATH} replace />,
   },
   {
     element: <OnboardingLayout />,
-    children: [
-      { path: '/welcome', element: <WelcomeStep /> },
-      { path: '/profile', element: <ProfileStep /> },
-      { path: '/preferences', element: <PreferencesStep /> },
-      { path: '/identity', element: <IdentityStep /> },
-      { path: '/finish', element: <FinishStep /> },
-    ],
+    children: STEP_CONFIG.map((step) => {
+      const Component = step.component;
+      return { path: step.path, element: <Component /> };
+    }),
   },
 ]);

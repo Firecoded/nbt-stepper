@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { FORM_STEP_IDS, getStepIndex, getNextStepPath } from '../../config/steps';
 import { useCheckScreenName } from '../../queries/useCheckScreenName';
 import { useSubmitOnboarding } from '../../queries/useSubmitOnboarding';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
@@ -29,7 +30,7 @@ export default function IdentityStep() {
   const { formData, setStepData, setStepValid, markStepComplete, setCurrentStep } = useOnboarding();
   const navigate = useNavigate();
 
-  const saved = formData.identity;
+  const saved = formData[FORM_STEP_IDS.identity];
   const [selectedAvatar, setSelectedAvatar] = useState(saved?.avatarId ?? 'avatar1');
   const [screenName, setScreenName] = useState(saved?.screenName ?? '');
 
@@ -60,9 +61,9 @@ export default function IdentityStep() {
   // Persist when available; clear saved screen name when explicitly invalid
   useEffect(() => {
     if (isAvailable) {
-      setStepData('identity', { avatarId: selectedAvatar, screenName });
+      setStepData(FORM_STEP_IDS.identity, { avatarId: selectedAvatar, screenName });
     } else if (status === 'unavailable' || status === 'too-short') {
-      setStepData('identity', { avatarId: selectedAvatar, screenName: '' });
+      setStepData(FORM_STEP_IDS.identity, { avatarId: selectedAvatar, screenName: '' });
     }
   }, [status, selectedAvatar]);
 
@@ -79,20 +80,20 @@ export default function IdentityStep() {
   const handleCreateAccount = () => {
     if (!isAvailable) return;
     const identity = { avatarId: selectedAvatar, screenName };
-    setStepData('identity', identity);
+    setStepData(FORM_STEP_IDS.identity, identity);
 
     const submission: OnboardingSubmission = {
-      profile: formData.profile!,
-      preferences: formData.preferences!,
+      profile: formData[FORM_STEP_IDS.profile]!,
+      preferences: formData[FORM_STEP_IDS.preferences]!,
       identity,
       submittedAt: new Date().toISOString(),
     };
 
     submitOnboarding(submission, {
       onSuccess: () => {
-        markStepComplete(3);
-        setCurrentStep(4);
-        navigate('/finish');
+        markStepComplete(getStepIndex(FORM_STEP_IDS.identity));
+        setCurrentStep(getStepIndex(FORM_STEP_IDS.identity) + 1);
+        navigate(getNextStepPath(FORM_STEP_IDS.identity));
       },
     });
   };

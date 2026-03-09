@@ -3,7 +3,8 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useQueryClient } from '@tanstack/react-query';
-import { useOnboarding, STEP_ROUTES } from '../../context/OnboardingContext';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { STEP_ROUTES, WELCOME_PATH, FINISH_PATH } from '../../config/steps';
 import StepIndicator from './StepIndicator';
 import DevPanel from '../../../shared/components/dev/DevPanel';
 import ErrorView from '../../../shared/components/ui/ErrorView';
@@ -40,8 +41,8 @@ export default function OnboardingLayout() {
     }
   }, [isLoaded, location.pathname]);
 
-  const isWelcome = location.pathname === '/welcome';
-  const isFinish = location.pathname === '/finish';
+  const isWelcome = location.pathname === WELCOME_PATH;
+  const isFinish = location.pathname === FINISH_PATH;
   const showStepper = !isWelcome && !isFinish;
 
   if (isLoadError || devErrorView) {

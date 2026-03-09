@@ -14,9 +14,7 @@ import type {
   ProfileData,
   OnboardingFormData,
 } from '../types/onboarding';
-
-export const STEP_ROUTES = ['/welcome', '/profile', '/preferences', '/identity', '/finish'] as const;
-export type StepRoute = (typeof STEP_ROUTES)[number];
+import type { FormStepId } from '../config/steps';
 
 interface OnboardingContextValue {
   formData: OnboardingFormData;
@@ -26,7 +24,7 @@ interface OnboardingContextValue {
   isLoaded: boolean;
   isLoadError: boolean;
   setStepData: (
-    step: 'profile' | 'preferences' | 'identity',
+    step: FormStepId,
     data: ProfileData | PreferencesData | IdentityData
   ) => void;
   setCurrentStep: (step: number) => void;
@@ -75,7 +73,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   }, [isLoaded, formData, currentStep, completedSteps]);
 
   const setStepData = (
-    step: 'profile' | 'preferences' | 'identity',
+    step: FormStepId,
     data: ProfileData | PreferencesData | IdentityData
   ) => {
     setFormData((prev) => ({ ...prev, [step]: data }));

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useOnboarding, STEP_ROUTES } from '../../context/OnboardingContext';
+import { useOnboarding } from '../../context/OnboardingContext';
+import { STEP_ROUTES, FIRST_FORM_STEP_INDEX, LAST_FORM_STEP_INDEX } from '../../config/steps';
 import Button from '../../../shared/components/ui/Button';
 
 interface NavButtonsProps {
@@ -11,8 +12,8 @@ export default function NavButtons({ onNext, loading = false }: NavButtonsProps)
   const { currentStep, isStepValid, setCurrentStep, markStepComplete } = useOnboarding();
   const navigate = useNavigate();
 
-  const isFirst = currentStep <= 1;
-  const isLast = currentStep === 3;
+  const isFirst = currentStep <= FIRST_FORM_STEP_INDEX;
+  const isLast = currentStep === LAST_FORM_STEP_INDEX;
 
   const handleBack = () => {
     const prevStep = currentStep - 1;

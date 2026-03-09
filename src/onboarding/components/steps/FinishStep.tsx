@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { FORM_STEP_IDS, WELCOME_PATH } from '../../config/steps';
 import AvatarImage from '../../../shared/components/ui/AvatarImage';
 import StarField from '../../../shared/components/ui/StarField';
 
@@ -44,9 +45,9 @@ export default function FinishStep() {
     fired.current = true;
 
     console.log('NBT Onboarding Complete:', {
-      profile: formData.profile,
-      preferences: formData.preferences,
-      identity: formData.identity,
+      profile: formData[FORM_STEP_IDS.profile],
+      preferences: formData[FORM_STEP_IDS.preferences],
+      identity: formData[FORM_STEP_IDS.identity],
     });
 
     // Two-burst confetti from the sides
@@ -63,12 +64,11 @@ export default function FinishStep() {
 
   const handleStartOver = () => {
     resetWizard();
-    navigate('/welcome');
+    navigate(WELCOME_PATH);
   };
 
-  const avatar = formData.identity?.avatarId
-    ? AVATAR_MAP[formData.identity.avatarId]
-    : null;
+  const identity = formData[FORM_STEP_IDS.identity];
+  const avatar = identity?.avatarId ? AVATAR_MAP[identity.avatarId] : null;
 
   return (
     <div className="flex w-full flex-col items-center px-4 pt-12 sm:pt-20">
@@ -104,11 +104,11 @@ export default function FinishStep() {
           <div>
             <h1 className="text-3xl font-black text-nbt-text sm:text-5xl">
               Welcome aboard
-              {formData.identity?.screenName && (
+              {identity?.screenName && (
                 <>
                   ,{' '}
                   <span className="bg-gradient-to-r from-nbt-primary to-nbt-secondary bg-clip-text text-transparent">
-                    @{formData.identity.screenName}
+                    @{identity.screenName}
                   </span>
                 </>
               )}
@@ -120,28 +120,28 @@ export default function FinishStep() {
 
         {/* Summary cards */}
         <div className="w-full space-y-3 sm:space-y-4">
-          {formData.profile && (
+          {formData[FORM_STEP_IDS.profile] && (
             <motion.div
               variants={itemVariants}
               className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
             >
               <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Profile</p>
               <p className="font-semibold text-nbt-text sm:text-lg">
-                {formData.profile.firstName} {formData.profile.lastName}
+                {formData[FORM_STEP_IDS.profile]!.firstName} {formData[FORM_STEP_IDS.profile]!.lastName}
               </p>
-              <p className="text-sm text-nbt-muted sm:text-base">{formData.profile.email}</p>
+              <p className="text-sm text-nbt-muted sm:text-base">{formData[FORM_STEP_IDS.profile]!.email}</p>
             </motion.div>
           )}
 
-          {formData.preferences && (
+          {formData[FORM_STEP_IDS.preferences] && (
             <motion.div
               variants={itemVariants}
               className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
             >
               <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Preferences</p>
-              <p className="font-semibold text-nbt-text sm:text-lg">{formData.preferences.role}</p>
+              <p className="font-semibold text-nbt-text sm:text-lg">{formData[FORM_STEP_IDS.preferences]!.role}</p>
               <div className="mt-1 flex flex-wrap gap-1.5 sm:mt-2 sm:gap-2">
-                {formData.preferences.interests.map((interest) => (
+                {formData[FORM_STEP_IDS.preferences]!.interests.map((interest) => (
                   <span
                     key={interest}
                     className="rounded-full border border-nbt-border bg-nbt-surface-2 px-2.5 py-0.5 text-xs text-nbt-muted sm:px-3 sm:py-1 sm:text-sm"
@@ -153,13 +153,13 @@ export default function FinishStep() {
             </motion.div>
           )}
 
-          {formData.identity && (
+          {identity && (
             <motion.div
               variants={itemVariants}
               className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
             >
               <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Identity</p>
-              <p className="font-semibold text-nbt-text sm:text-lg">@{formData.identity.screenName}</p>
+              <p className="font-semibold text-nbt-text sm:text-lg">@{identity.screenName}</p>
             </motion.div>
           )}
         </div>

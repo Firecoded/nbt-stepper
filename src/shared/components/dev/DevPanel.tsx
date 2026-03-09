@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useOnboarding, STEP_ROUTES } from '../../../onboarding/context/OnboardingContext';
+import { useOnboarding } from '../../../onboarding/context/OnboardingContext';
+import { STEP_ROUTES } from '../../../onboarding/config/steps';
 import { useToast } from '../ui/Toaster';
 
 interface DevPanelProps {

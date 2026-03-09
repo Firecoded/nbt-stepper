@@ -11,6 +11,7 @@ import {
   INTERESTS,
 } from '../../schemas/preferencesSchema';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { FORM_STEP_IDS, getStepIndex, getNextStepPath } from '../../config/steps';
 import NavButtons from '../layout/NavButtons';
 
 const ROLE_ICONS: Record<string, string> = {
@@ -31,7 +32,7 @@ export default function PreferencesStep() {
     formState: { isValid },
   } = useForm<PreferencesFormValues>({
     resolver: zodResolver(preferencesSchema),
-    defaultValues: formData.preferences ?? { role: '', interests: [] },
+    defaultValues: formData[FORM_STEP_IDS.preferences] ?? { role: '', interests: [] },
     mode: 'onChange',
   });
 
@@ -42,15 +43,15 @@ export default function PreferencesStep() {
   const values = watch();
   useEffect(() => {
     if (isValid) {
-      setStepData('preferences', values);
+      setStepData(FORM_STEP_IDS.preferences, values);
     }
   }, [values.role, JSON.stringify(values.interests), isValid]);
 
   const onSubmit = (data: PreferencesFormValues) => {
-    setStepData('preferences', data);
-    markStepComplete(2);
-    setCurrentStep(3);
-    navigate('/identity');
+    setStepData(FORM_STEP_IDS.preferences, data);
+    markStepComplete(getStepIndex(FORM_STEP_IDS.preferences));
+    setCurrentStep(getStepIndex(FORM_STEP_IDS.preferences) + 1);
+    navigate(getNextStepPath(FORM_STEP_IDS.preferences));
   };
 
   return (

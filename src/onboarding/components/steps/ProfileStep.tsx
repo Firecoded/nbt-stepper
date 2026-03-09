@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import { profileSchema, type ProfileFormValues } from '../../schemas/profileSchema';
 import { useOnboarding } from '../../context/OnboardingContext';
+import { FORM_STEP_IDS, getStepIndex, getNextStepPath } from '../../config/steps';
 import Input from '../../../shared/components/ui/Input';
 import NavButtons from '../layout/NavButtons';
 
@@ -18,7 +19,7 @@ export default function ProfileStep() {
     formState: { errors, isValid },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
-    defaultValues: formData.profile ?? { firstName: '', lastName: '', email: '' },
+    defaultValues: formData[FORM_STEP_IDS.profile] ?? { firstName: '', lastName: '', email: '' },
     mode: 'onChange',
   });
 
@@ -31,15 +32,15 @@ export default function ProfileStep() {
   const values = watch();
   useEffect(() => {
     if (isValid) {
-      setStepData('profile', values);
+      setStepData(FORM_STEP_IDS.profile, values);
     }
   }, [values.firstName, values.lastName, values.email, isValid]);
 
   const onSubmit = (data: ProfileFormValues) => {
-    setStepData('profile', data);
-    markStepComplete(1);
-    setCurrentStep(2);
-    navigate('/preferences');
+    setStepData(FORM_STEP_IDS.profile, data);
+    markStepComplete(getStepIndex(FORM_STEP_IDS.profile));
+    setCurrentStep(getStepIndex(FORM_STEP_IDS.profile) + 1);
+    navigate(getNextStepPath(FORM_STEP_IDS.profile));
   };
 
   return (
