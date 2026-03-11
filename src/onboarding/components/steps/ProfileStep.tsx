@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
 import { profileSchema, type ProfileFormValues } from '../../schemas/profileSchema';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { FORM_STEP_IDS, getStepIndex, getNextStepPath } from '../../config/steps';
+import { useStepNavigation } from '../../hooks/useStepNavigation';
+import { FORM_STEP_IDS } from '../../config/steps';
 import Input from '../../../shared/components/ui/Input';
 import NavButtons from '../layout/NavButtons';
 
 export default function ProfileStep() {
-  const { formData, setStepData, setStepValid, setCurrentStep, markStepComplete } = useOnboarding();
-  const navigate = useNavigate();
+  const { formData, setStepData, setStepValid } = useOnboarding();
+  const { advance } = useStepNavigation(FORM_STEP_IDS.profile);
 
   const {
     register,
@@ -23,12 +23,10 @@ export default function ProfileStep() {
     mode: 'onChange',
   });
 
-  // Report validity up to context on every change
   useEffect(() => {
     setStepValid(isValid);
   }, [isValid, setStepValid]);
 
-  // Save draft on every field change
   const values = watch();
   useEffect(() => {
     if (isValid) {
@@ -38,9 +36,7 @@ export default function ProfileStep() {
 
   const onSubmit = (data: ProfileFormValues) => {
     setStepData(FORM_STEP_IDS.profile, data);
-    markStepComplete(getStepIndex(FORM_STEP_IDS.profile));
-    setCurrentStep(getStepIndex(FORM_STEP_IDS.profile) + 1);
-    navigate(getNextStepPath(FORM_STEP_IDS.profile));
+    advance();
   };
 
   return (

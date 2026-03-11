@@ -1,9 +1,10 @@
 import clsx from 'clsx';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { FORM_STEP_IDS, getStepIndex, getNextStepPath } from '../../config/steps';
+import { useStepNavigation } from '../../hooks/useStepNavigation';
+import { useTelemetry } from '../../hooks/useTelemetry';
+import { FORM_STEP_IDS } from '../../config/steps';
 import { useCheckScreenName } from '../../queries/useCheckScreenName';
 import { useSubmitOnboarding } from '../../queries/useSubmitOnboarding';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
@@ -27,8 +28,9 @@ const AVATARS = [
 ];
 
 export default function IdentityStep() {
-  const { formData, setStepData, setStepValid, markStepComplete, setCurrentStep } = useOnboarding();
-  const navigate = useNavigate();
+  const { formData, setStepData, setStepValid, activeFormSteps } = useOnboarding();
+  const { advance } = useStepNavigation(FORM_STEP_IDS.identity);
+  const { track } = useTelemetry();
 
   const saved = formData[FORM_STEP_IDS.identity];
   const [selectedAvatar, setSelectedAvatar] = useState(saved?.avatarId ?? 'avatar1');
@@ -84,16 +86,17 @@ export default function IdentityStep() {
 
     const submission: OnboardingSubmission = {
       profile: formData[FORM_STEP_IDS.profile]!,
-      preferences: formData[FORM_STEP_IDS.preferences]!,
+      preferences: formData[FORM_STEP_IDS.preferences] ?? null,
+      'business-details': formData['business-details'] ?? null,
       identity,
       submittedAt: new Date().toISOString(),
     };
 
+    // Submit all collected data first, then advance the wizard step
     submitOnboarding(submission, {
       onSuccess: () => {
-        markStepComplete(getStepIndex(FORM_STEP_IDS.identity));
-        setCurrentStep(getStepIndex(FORM_STEP_IDS.identity) + 1);
-        navigate(getNextStepPath(FORM_STEP_IDS.identity));
+        track({ name: 'onboarding_submitted', properties: { stepCount: activeFormSteps.length } });
+        advance();
       },
     });
   };

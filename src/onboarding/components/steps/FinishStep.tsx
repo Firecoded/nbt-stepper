@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { FORM_STEP_IDS, WELCOME_PATH } from '../../config/steps';
+import { FORM_STEP_IDS, HOME_PATH } from '../../config/steps';
 import AvatarImage from '../../../shared/components/ui/AvatarImage';
 import StarField from '../../../shared/components/ui/StarField';
 
@@ -36,7 +36,7 @@ const itemVariants = {
 };
 
 export default function FinishStep() {
-  const { formData, resetWizard } = useOnboarding();
+  const { formData, resetWizard, activeFormSteps } = useOnboarding();
   const navigate = useNavigate();
   const fired = useRef(false);
 
@@ -44,11 +44,11 @@ export default function FinishStep() {
     if (fired.current) return;
     fired.current = true;
 
-    console.log('NBT Onboarding Complete:', {
-      profile: formData[FORM_STEP_IDS.profile],
-      preferences: formData[FORM_STEP_IDS.preferences],
-      identity: formData[FORM_STEP_IDS.identity],
-    });
+    // Log all collected data keyed by whichever steps were active in this session
+    const collected = Object.fromEntries(
+      activeFormSteps.map((s) => [s.id, formData[s.id as keyof typeof formData]])
+    );
+    console.log('NBT Onboarding Complete:', collected);
 
     // Two-burst confetti from the sides
     const shared = {
@@ -64,7 +64,7 @@ export default function FinishStep() {
 
   const handleStartOver = () => {
     resetWizard();
-    navigate(WELCOME_PATH);
+    navigate(HOME_PATH);
   };
 
   const identity = formData[FORM_STEP_IDS.identity];
@@ -118,50 +118,63 @@ export default function FinishStep() {
           </div>
         </motion.div>
 
-        {/* Summary cards */}
+        {/* Summary cards — rendered in the order the server specified */}
         <div className="w-full space-y-3 sm:space-y-4">
-          {formData[FORM_STEP_IDS.profile] && (
-            <motion.div
-              variants={itemVariants}
-              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
-            >
-              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Profile</p>
-              <p className="font-semibold text-nbt-text sm:text-lg">
-                {formData[FORM_STEP_IDS.profile]!.firstName} {formData[FORM_STEP_IDS.profile]!.lastName}
-              </p>
-              <p className="text-sm text-nbt-muted sm:text-base">{formData[FORM_STEP_IDS.profile]!.email}</p>
-            </motion.div>
-          )}
+          {activeFormSteps.map((step) => {
+            if (step.id === FORM_STEP_IDS.profile) {
+              const d = formData[FORM_STEP_IDS.profile];
+              if (!d) return null;
+              return (
+                <motion.div key={step.id} variants={itemVariants} className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Profile</p>
+                  <p className="font-semibold text-nbt-text sm:text-lg">{d.firstName} {d.lastName}</p>
+                  <p className="text-sm text-nbt-muted sm:text-base">{d.email}</p>
+                </motion.div>
+              );
+            }
 
-          {formData[FORM_STEP_IDS.preferences] && (
-            <motion.div
-              variants={itemVariants}
-              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
-            >
-              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Preferences</p>
-              <p className="font-semibold text-nbt-text sm:text-lg">{formData[FORM_STEP_IDS.preferences]!.role}</p>
-              <div className="mt-1 flex flex-wrap gap-1.5 sm:mt-2 sm:gap-2">
-                {formData[FORM_STEP_IDS.preferences]!.interests.map((interest) => (
-                  <span
-                    key={interest}
-                    className="rounded-full border border-nbt-border bg-nbt-surface-2 px-2.5 py-0.5 text-xs text-nbt-muted sm:px-3 sm:py-1 sm:text-sm"
-                  >
-                    {interest}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
-          )}
+            if (step.id === FORM_STEP_IDS.preferences) {
+              const d = formData[FORM_STEP_IDS.preferences];
+              if (!d) return null;
+              return (
+                <motion.div key={step.id} variants={itemVariants} className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Preferences</p>
+                  <p className="font-semibold text-nbt-text sm:text-lg">{d.role}</p>
+                  <div className="mt-1 flex flex-wrap gap-1.5 sm:mt-2 sm:gap-2">
+                    {d.interests.map((interest) => (
+                      <span key={interest} className="rounded-full border border-nbt-border bg-nbt-surface-2 px-2.5 py-0.5 text-xs text-nbt-muted sm:px-3 sm:py-1 sm:text-sm">
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            }
 
-          {identity && (
-            <motion.div
-              variants={itemVariants}
-              className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6"
-            >
-              <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Identity</p>
-              <p className="font-semibold text-nbt-text sm:text-lg">@{identity.screenName}</p>
-            </motion.div>
-          )}
+            if (step.id === 'business-details') {
+              const d = formData['business-details'];
+              if (!d) return null;
+              return (
+                <motion.div key={step.id} variants={itemVariants} className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Business</p>
+                  <p className="font-semibold text-nbt-text sm:text-lg">{d.companyName}</p>
+                  <p className="mt-0.5 text-sm text-nbt-muted sm:text-base">{d.industry}</p>
+                </motion.div>
+              );
+            }
+
+            if (step.id === FORM_STEP_IDS.identity) {
+              if (!identity) return null;
+              return (
+                <motion.div key={step.id} variants={itemVariants} className="rounded-2xl border border-nbt-border bg-nbt-surface p-4 sm:p-6">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-nbt-muted sm:text-sm">Identity</p>
+                  <p className="font-semibold text-nbt-text sm:text-lg">@{identity.screenName}</p>
+                </motion.div>
+              );
+            }
+
+            return null;
+          })}
         </div>
 
         <motion.div variants={itemVariants} className="flex flex-col items-center gap-2 pb-12">

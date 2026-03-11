@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from '../../../onboarding/context/OnboardingContext';
-import { STEP_ROUTES } from '../../../onboarding/config/steps';
 import { useToast } from '../ui/Toaster';
 
 interface DevPanelProps {
@@ -11,23 +10,23 @@ interface DevPanelProps {
 
 export default function DevPanel({ onTriggerErrorView }: DevPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { resetWizard, currentStep, markStepComplete, setCurrentStep } = useOnboarding();
+  const { resetWizard, currentStepId, completeStep, activeFormSteps } = useOnboarding();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const canSkip = currentStep > 0 && currentStep < STEP_ROUTES.length - 1;
+  const stepIdx = activeFormSteps.findIndex((s) => s.id === currentStepId);
+  const canSkip = stepIdx !== -1 && stepIdx < activeFormSteps.length - 1;
 
   const handleReset = () => {
     resetWizard();
-    navigate('/welcome');
+    navigate('/');
   };
 
   const handleSkip = () => {
-    if (!canSkip) return;
-    markStepComplete(currentStep);
-    const next = currentStep + 1;
-    setCurrentStep(next);
-    navigate(STEP_ROUTES[next]);
+    if (!canSkip || !currentStepId) return;
+    const nextPath = activeFormSteps[stepIdx + 1]?.path;
+    if (!nextPath) return;
+    completeStep(currentStepId, { onSuccess: () => navigate(nextPath) });
   };
 
   const actions = [

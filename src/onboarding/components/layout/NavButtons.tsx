@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { STEP_ROUTES, FIRST_FORM_STEP_INDEX, LAST_FORM_STEP_INDEX } from '../../config/steps';
 import Button from '../../../shared/components/ui/Button';
 
 interface NavButtonsProps {
@@ -8,29 +7,26 @@ interface NavButtonsProps {
   loading?: boolean;
 }
 
+const QUALIFY_PATH = '/qualify';
+
 export default function NavButtons({ onNext, loading = false }: NavButtonsProps) {
-  const { currentStep, isStepValid, setCurrentStep, markStepComplete } = useOnboarding();
+  const { currentStepId, isStepValid, isCompletingStep, activeFormSteps } = useOnboarding();
   const navigate = useNavigate();
 
-  const isFirst = currentStep <= FIRST_FORM_STEP_INDEX;
-  const isLast = currentStep === LAST_FORM_STEP_INDEX;
+  const idx = activeFormSteps.findIndex((s) => s.id === currentStepId);
+  const isFirst = idx <= 0;
+  const isLast = idx === activeFormSteps.length - 1;
 
   const handleBack = () => {
-    const prevStep = currentStep - 1;
-    setCurrentStep(prevStep);
-    navigate(STEP_ROUTES[prevStep]);
+    if (idx <= 0) {
+      navigate(QUALIFY_PATH);
+    } else {
+      navigate(activeFormSteps[idx - 1].path);
+    }
   };
 
   const handleNext = () => {
-    if (onNext) {
-      // Step owns validation/navigation (e.g. form submit, async check)
-      onNext();
-      return;
-    }
-    markStepComplete(currentStep);
-    const nextStep = currentStep + 1;
-    setCurrentStep(nextStep);
-    navigate(STEP_ROUTES[nextStep]);
+    onNext?.();
   };
 
   const backButton = !isFirst && (
@@ -44,7 +40,7 @@ export default function NavButtons({ onNext, loading = false }: NavButtonsProps)
       variant="primary"
       onClick={handleNext}
       disabled={!isStepValid}
-      loading={loading}
+      loading={loading || isCompletingStep}
       size="md"
       className="flex-1"
     >

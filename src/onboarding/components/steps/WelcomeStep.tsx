@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useOnboarding } from '../../context/OnboardingContext';
+import { QUALIFY_PATH } from '../../config/steps';
 import Logo from '../../../shared/components/ui/Logo';
 import StarField from '../../../shared/components/ui/StarField';
 
@@ -31,16 +31,19 @@ const logoVariants = {
 
 export default function WelcomeStep() {
   const navigate = useNavigate();
-  const { setCurrentStep } = useOnboarding();
 
   const handleStart = () => {
-    setCurrentStep(1);
-    navigate('/profile');
+    navigate(QUALIFY_PATH);
   };
 
   return (
-    <div className="flex min-h-dvh w-full flex-col items-center px-6 pt-16 sm:pt-32">
+    <div className="flex min-h-dvh w-full flex-col items-center justify-center px-6 py-16 sm:py-24">
       <StarField />
+      {/* Background glow blobs — same as wizard layout for visual consistency */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-40 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-nbt-primary/10 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-nbt-secondary/8 blur-3xl" />
+      </div>
       <div className="pointer-events-none fixed inset-0 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}

@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import clsx from 'clsx';
 import { useQueryClient } from '@tanstack/react-query';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { STEP_ROUTES, WELCOME_PATH, FINISH_PATH } from '../../config/steps';
+import { useTelemetry } from '../../hooks/useTelemetry';
+import { FINISH_PATH, QUALIFY_PATH } from '../../config/steps';
 import StepIndicator from './StepIndicator';
 import DevPanel from '../../../shared/components/dev/DevPanel';
 import ErrorView from '../../../shared/components/ui/ErrorView';
@@ -23,27 +24,45 @@ const pageTransition = {
 export default function OnboardingLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { currentStep, completedSteps, setCurrentStep, isLoaded, isLoadError } = useOnboarding();
+  const {
+    currentStepId,
+    completedStepIds,
+    setCurrentStepId,
+    isLoaded,
+    isLoadError,
+    activeFormSteps,
+  } = useOnboarding();
   const queryClient = useQueryClient();
+  const { track } = useTelemetry();
   const [devErrorView, setDevErrorView] = useState(false);
 
-  // Sync currentStep with route — handles page refresh and direct URL navigation
   useEffect(() => {
     if (!isLoaded) return;
-    const routeStep = STEP_ROUTES.indexOf(location.pathname as typeof STEP_ROUTES[number]);
-    if (routeStep !== -1 && routeStep !== currentStep) {
-      const maxReachable = Math.max(...completedSteps, 0) + 1;
-      if (routeStep > maxReachable && routeStep !== 0) {
-        navigate(STEP_ROUTES[Math.min(maxReachable, STEP_ROUTES.length - 1)], { replace: true });
+
+    const stepIdx = activeFormSteps.findIndex((s) => s.path === location.pathname);
+
+    if (stepIdx === -1) return; // /qualify or /finish — not a guarded form step
+
+    if (stepIdx > 0) {
+      const prevStep = activeFormSteps[stepIdx - 1];
+      if (!completedStepIds.includes(prevStep.id)) {
+        const firstIncomplete = activeFormSteps.find((s) => !completedStepIds.includes(s.id));
+        navigate(firstIncomplete?.path ?? QUALIFY_PATH, { replace: true });
         return;
       }
-      setCurrentStep(routeStep);
     }
-  }, [isLoaded, location.pathname]);
 
-  const isWelcome = location.pathname === WELCOME_PATH;
+    setCurrentStepId(activeFormSteps[stepIdx].id);
+  }, [isLoaded, location.pathname, activeFormSteps, completedStepIds]);
+
+  useEffect(() => {
+    if (currentStepId) track({ name: 'step_viewed', properties: { stepId: currentStepId } });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStepId]);
+
   const isFinish = location.pathname === FINISH_PATH;
-  const showStepper = !isWelcome && !isFinish;
+  const isQualify = location.pathname === QUALIFY_PATH;
+  const showStepper = !isFinish && !isQualify;
 
   if (isLoadError || devErrorView) {
     return (

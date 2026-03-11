@@ -1,11 +1,13 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { createBrowserRouter } from 'react-router-dom';
 import OnboardingLayout from './components/layout/OnboardingLayout';
-import { STEP_CONFIG, WELCOME_PATH } from './config/steps';
+import WelcomeStep from './components/steps/WelcomeStep';
+import { STEP_CONFIG } from './config/steps';
 
 export const onboardingRouter = createBrowserRouter([
   {
+    // Landing page — lives outside the wizard layout, no stepper or progress guard
     path: '/',
-    element: <Navigate to={WELCOME_PATH} replace />,
+    element: <WelcomeStep />,
   },
   {
     element: <OnboardingLayout />,

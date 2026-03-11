@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import { motion } from 'framer-motion';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { FORM_STEPS } from '../../config/steps';
 
 const containerVariants = {
   hidden: {},
@@ -28,7 +27,7 @@ const connectorVariants = {
 };
 
 export default function StepIndicator() {
-  const { currentStep } = useOnboarding();
+  const { currentStepId, completedStepIds, activeFormSteps } = useOnboarding();
 
   return (
     <motion.div
@@ -37,10 +36,9 @@ export default function StepIndicator() {
       animate="show"
       className="flex items-center gap-2"
     >
-      {FORM_STEPS.map((step, i) => {
-        const stepIndex = i + 1;
-        const isCompleted = stepIndex < currentStep;
-        const isActive = stepIndex === currentStep;
+      {activeFormSteps.map((step, i) => {
+        const isCompleted = completedStepIds.includes(step.id);
+        const isActive = step.id === currentStepId;
 
         return (
           <motion.div key={step.id} variants={itemVariants} className="flex items-center gap-2">
@@ -69,7 +67,7 @@ export default function StepIndicator() {
                       ✓
                     </motion.span>
                   ) : (
-                    stepIndex
+                    i + 1
                   )}
                 </motion.div>
 
@@ -84,7 +82,7 @@ export default function StepIndicator() {
 
             </div>
 
-            {i < FORM_STEPS.length - 1 && (
+            {i < activeFormSteps.length - 1 && (
               <motion.div
                 variants={connectorVariants}
                 className="h-px w-16 origin-left sm:w-28"

@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import {
   preferencesSchema,
   type PreferencesFormValues,
@@ -11,7 +10,8 @@ import {
   INTERESTS,
 } from '../../schemas/preferencesSchema';
 import { useOnboarding } from '../../context/OnboardingContext';
-import { FORM_STEP_IDS, getStepIndex, getNextStepPath } from '../../config/steps';
+import { useStepNavigation } from '../../hooks/useStepNavigation';
+import { FORM_STEP_IDS } from '../../config/steps';
 import NavButtons from '../layout/NavButtons';
 
 const ROLE_ICONS: Record<string, string> = {
@@ -22,8 +22,8 @@ const ROLE_ICONS: Record<string, string> = {
 };
 
 export default function PreferencesStep() {
-  const { formData, setStepData, setStepValid, setCurrentStep, markStepComplete } = useOnboarding();
-  const navigate = useNavigate();
+  const { formData, setStepData, setStepValid } = useOnboarding();
+  const { advance } = useStepNavigation(FORM_STEP_IDS.preferences);
 
   const {
     control,
@@ -49,9 +49,7 @@ export default function PreferencesStep() {
 
   const onSubmit = (data: PreferencesFormValues) => {
     setStepData(FORM_STEP_IDS.preferences, data);
-    markStepComplete(getStepIndex(FORM_STEP_IDS.preferences));
-    setCurrentStep(getStepIndex(FORM_STEP_IDS.preferences) + 1);
-    navigate(getNextStepPath(FORM_STEP_IDS.preferences));
+    advance();
   };
 
   return (
