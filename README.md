@@ -89,49 +89,28 @@ docs/
 
 ```mermaid
 flowchart TD
-    subgraph "main.tsx - Provider tree"
-        A[StrictMode] --> B[QueryClientProvider]
-        B --> C[ToastProvider]
-        C --> D[OnboardingProvider]
-        D --> E[RouterProvider]
-    end
+    A[OnboardingProvider] --> B[OnboardingLayout]
+    B --> C["/welcome - WelcomeStep"]
+    B --> D["/profile - ProfileStep"]
+    B --> E["/preferences - PreferencesStep"]
+    B --> F["/identity - IdentityStep"]
+    B --> G["/finish - FinishStep"]
 
-    subgraph "routes.tsx - Route tree"
-        E --> F["/ redirect to /welcome"]
-        E --> G[OnboardingLayout - layout route]
-        G --> H["/welcome - WelcomeStep"]
-        G --> I["/profile - ProfileStep"]
-        G --> J["/preferences - PreferencesStep"]
-        G --> K["/identity - IdentityStep"]
-        G --> L["/finish - FinishStep"]
-    end
+    B --> H[StepIndicator]
+    D --> I[NavButtons]
+    E --> I
+    F --> I
 
-    subgraph "OnboardingLayout - shared chrome"
-        G --> M[StepIndicator]
-        G --> N[DevPanel]
-        I --> O[NavButtons]
-        J --> O
-        K --> O
-    end
+    J["config/steps.ts"] -->|"routes, step order, IDs"| B
+    J -->|"STEP_ROUTES, FIRST/LAST indexes"| I
+    J -->|FORM_STEP_IDS| D & E & F
 
-    subgraph "config/steps.ts - single source of truth"
-        P["STEP_CONFIG array"] --> G
-        P -->|"STEP_ROUTES, FIRST/LAST indexes"| O
-        P -->|"FORM_STEP_IDS"| I & J & K
-    end
+    A -->|"currentStep, completedSteps, formData"| B
+    A -->|"setStepData, markStepComplete"| D & E & F & I
+    A <-->|"debounced save / load"| K[(localStorage)]
 
-    subgraph "State - OnboardingContext"
-        D -->|"currentStep, completedSteps, formData"| G
-        D -->|"setCurrentStep, markStepComplete"| O
-        D -->|"setStepData, setStepValid"| I & J & K
-        D -->|"debounced save"| Q[localStorage]
-        Q -->|on load| D
-    end
-
-    subgraph "Queries - React Query"
-        K -->|useSubmitOnboarding| R[mockOnboardingApi.submit]
-        K -->|useCheckScreenName| S[mockOnboardingApi.checkScreenName]
-    end
+    F -->|useSubmitOnboarding| L[mockOnboardingApi]
+    F -->|useCheckScreenName| L
 ```
 
 ---
