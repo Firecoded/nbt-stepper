@@ -32,7 +32,7 @@ export default function OnboardingLayout() {
     if (!isLoaded) return;
     const routeStep = STEP_ROUTES.indexOf(location.pathname as typeof STEP_ROUTES[number]);
     if (routeStep !== -1 && routeStep !== currentStep) {
-      const maxReachable = Math.max(...completedSteps, 0) + 1;
+      const maxReachable = Math.max(...(completedSteps ?? []), 0) + 1;
       if (routeStep > maxReachable && routeStep !== 0) {
         navigate(STEP_ROUTES[Math.min(maxReachable, STEP_ROUTES.length - 1)], { replace: true });
         return;

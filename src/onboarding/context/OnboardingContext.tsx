@@ -55,9 +55,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isSuccess && !isLoadError) return;
     if (savedProgress) {
-      setFormData(savedProgress.formData);
-      setCurrentStepState(savedProgress.currentStep);
-      setCompletedSteps(savedProgress.completedSteps);
+      setFormData(savedProgress.formData ?? DEFAULT_FORM_DATA);
+      setCurrentStepState(savedProgress.currentStep ?? 0);
+      setCompletedSteps(savedProgress.completedSteps ?? []);
     }
     setIsLoaded(true);
   }, [isSuccess, isLoadError]);
