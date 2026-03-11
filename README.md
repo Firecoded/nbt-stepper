@@ -41,28 +41,97 @@ npm run test:watch  # watch mode
 
 ```
 src/
+├── main.tsx               # Provider tree: QueryClient → Toast → OnboardingProvider → Router
 ├── onboarding/
-│   ├── api/           # Mock API (mirrors real endpoint shapes)
-│   ├── assets/        # Avatars and onboarding-specific assets
+│   ├── routes.tsx         # / redirects to /welcome; all steps rendered under OnboardingLayout
+│   ├── api/               # mockOnboardingApi — mirrors real endpoint shapes
+│   ├── assets/            # Avatars and onboarding-specific assets
 │   ├── components/
-│   │   ├── layout/    # OnboardingLayout, StepIndicator, NavButtons
-│   │   └── steps/     # One component per wizard step
-│   ├── context/       # OnboardingContext — global wizard state
-│   ├── queries/       # React Query hooks (useOnboardingProgress, useSubmitOnboarding, etc.)
-│   ├── schemas/       # Zod validation schemas per step (*.test.ts co-located)
-│   └── types/         # Shared TypeScript types
+│   │   ├── layout/
+│   │   │   ├── OnboardingLayout.tsx  # Route guard, stepper chrome, page transitions
+│   │   │   ├── StepIndicator.tsx     # Progress dots driven by currentStep / completedSteps
+│   │   │   └── NavButtons.tsx        # Back/Next — reads step positions from config/steps
+│   │   └── steps/
+│   │       ├── WelcomeStep.tsx   # /welcome
+│   │       ├── ProfileStep.tsx   # /profile
+│   │       ├── PreferencesStep.tsx  # /preferences
+│   │       ├── IdentityStep.tsx  # /identity — also calls useSubmitOnboarding
+│   │       └── FinishStep.tsx    # /finish
+│   ├── config/
+│   │   └── steps.ts       # Single source of truth: step order, paths, components, IDs
+│   │                      # Adding a step here registers it in routes, stepper, and nav
+│   ├── context/
+│   │   └── OnboardingContext.tsx  # currentStep, completedSteps, formData, persistence
+│   ├── queries/           # React Query hooks — real fetch commented in, mock active
+│   │   ├── useOnboardingProgress.ts
+│   │   ├── useSaveOnboardingProgress.ts
+│   │   ├── useCheckScreenName.ts
+│   │   └── useSubmitOnboarding.ts
+│   ├── schemas/           # Zod schemas per step (*.test.ts co-located)
+│   └── types/             # OnboardingFormData, OnboardingProgress, etc.
 │
 ├── shared/
 │   ├── components/
-│   │   ├── ui/        # Reusable primitives: Button, Input, Toaster, ErrorView
-│   │   └── dev/       # DevPanel (dev/demo tool, excluded from prod builds)
-│   ├── hooks/         # useDebounce (*.test.ts co-located)
-│   ├── lib/           # promiseDelay
-│   └── services/      # localStorageService
+│   │   ├── ui/            # Button, Input, Toaster, ErrorView, AvatarImage, StarField
+│   │   └── dev/           # DevPanel — reset, skip, error trigger (dev only)
+│   ├── hooks/             # useDebounce (*.test.ts co-located)
+│   ├── lib/               # promiseDelay
+│   └── services/          # localStorageService
 │
 docs/
 ├── schema.sql              # Proposed database schema
 └── create-account-flow.md  # Backend transaction flow for account creation
+```
+
+---
+
+## Component Architecture
+
+```mermaid
+flowchart TD
+    subgraph "main.tsx - Provider tree"
+        A[StrictMode] --> B[QueryClientProvider]
+        B --> C[ToastProvider]
+        C --> D[OnboardingProvider]
+        D --> E[RouterProvider]
+    end
+
+    subgraph "routes.tsx - Route tree"
+        E --> F["/ redirect to /welcome"]
+        E --> G[OnboardingLayout - layout route]
+        G --> H["/welcome - WelcomeStep"]
+        G --> I["/profile - ProfileStep"]
+        G --> J["/preferences - PreferencesStep"]
+        G --> K["/identity - IdentityStep"]
+        G --> L["/finish - FinishStep"]
+    end
+
+    subgraph "OnboardingLayout - shared chrome"
+        G --> M[StepIndicator]
+        G --> N[DevPanel]
+        I --> O[NavButtons]
+        J --> O
+        K --> O
+    end
+
+    subgraph "config/steps.ts - single source of truth"
+        P["STEP_CONFIG array"] --> G
+        P -->|"STEP_ROUTES, FIRST/LAST indexes"| O
+        P -->|"FORM_STEP_IDS"| I & J & K
+    end
+
+    subgraph "State - OnboardingContext"
+        D -->|"currentStep, completedSteps, formData"| G
+        D -->|"setCurrentStep, markStepComplete"| O
+        D -->|"setStepData, setStepValid"| I & J & K
+        D -->|"debounced save"| Q[localStorage]
+        Q -->|on load| D
+    end
+
+    subgraph "Queries - React Query"
+        K -->|useSubmitOnboarding| R[mockOnboardingApi.submit]
+        K -->|useCheckScreenName| S[mockOnboardingApi.checkScreenName]
+    end
 ```
 
 ---
