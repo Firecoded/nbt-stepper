@@ -42,23 +42,41 @@ npm run test:watch  # watch mode
 ```
 src/
 ├── onboarding/
-│   ├── api/           # Mock API (mirrors real endpoint shapes)
-│   ├── assets/        # Avatars and onboarding-specific assets
+│   ├── api/               # mockOnboardingApi — mirrors real endpoint shapes
+│   ├── assets/            # Avatars and onboarding-specific assets
 │   ├── components/
-│   │   ├── layout/    # OnboardingLayout, StepIndicator, NavButtons
-│   │   └── steps/     # One component per wizard step
-│   ├── context/       # OnboardingContext — global wizard state
-│   ├── queries/       # React Query hooks (useOnboardingProgress, useSubmitOnboarding, etc.)
-│   ├── schemas/       # Zod validation schemas per step (*.test.ts co-located)
-│   └── types/         # Shared TypeScript types
+│   │   ├── layout/        # OnboardingLayout, StepIndicator, NavButtons
+│   │   └── steps/         # One component per wizard step
+│   │       ├── WelcomeStep.tsx          # Landing page (/)
+│   │       ├── QualifyStep.tsx          # Account type selection (/qualify)
+│   │       ├── ProfileStep.tsx          # /profile
+│   │       ├── PreferencesStep.tsx      # /preferences  (personal flow)
+│   │       ├── BusinessDetailsStep.tsx  # /business-details  (business flow)
+│   │       ├── IdentityStep.tsx         # /identity
+│   │       └── FinishStep.tsx           # /finish
+│   ├── config/
+│   │   └── steps.ts       # Client step registry: all possible steps with paths + components
+│   ├── context/
+│   │   └── OnboardingContext.tsx  # Global wizard state, completeStep mutation, applyConfig
+│   ├── hooks/
+│   │   ├── useStepNavigation.ts  # advance() — wraps completeStep + navigate per step
+│   │   └── useTelemetry.ts       # Typed event tracking (console mock, PostHog-ready)
+│   ├── queries/           # React Query hooks — real fetch calls commented in, mocks active
+│   │   ├── useOnboardingConfig.ts    # POST qualifier answers → receive step list
+│   │   ├── useOnboardingProgress.ts  # GET saved progress
+│   │   ├── useSaveOnboardingProgress.ts
+│   │   ├── useCheckScreenName.ts
+│   │   └── useSubmitOnboarding.ts
+│   ├── schemas/           # Zod schemas per step (*.test.ts co-located)
+│   └── types/             # Shared TypeScript interfaces
 │
 ├── shared/
 │   ├── components/
-│   │   ├── ui/        # Reusable primitives: Button, Input, Toaster, ErrorView
-│   │   └── dev/       # DevPanel (dev/demo tool, excluded from prod builds)
-│   ├── hooks/         # useDebounce (*.test.ts co-located)
-│   ├── lib/           # promiseDelay
-│   └── services/      # localStorageService
+│   │   ├── ui/            # Button, Input, Toaster, ErrorView, AvatarImage, StarField
+│   │   └── dev/           # DevPanel — reset, skip, error trigger (dev only)
+│   ├── hooks/             # useDebounce (*.test.ts co-located)
+│   ├── lib/               # promiseDelay
+│   └── services/          # localStorageService
 │
 docs/
 ├── schema.sql              # Proposed database schema
@@ -93,43 +111,51 @@ See [`docs/schema.sql`](./docs/schema.sql) for the proposed database schema and 
 flowchart TD
     subgraph Entry
         A[main.tsx] --> B[QueryClientProvider]
-        B --> C[OnboardingProvider\ncontext + state]
+        B --> C[OnboardingProvider]
         C --> D[RouterProvider]
     end
 
     subgraph Routes
-        D --> E["/ — WelcomeStep"]
+        D --> E["/ - WelcomeStep"]
         D --> F[OnboardingLayout]
-        F --> G[/qualify — QualifyStep]
-        F --> H[/profile — ProfileStep]
-        F --> I[/preferences — PreferencesStep\nor /business-details — BusinessDetailsStep]
-        F --> J[/identity — IdentityStep]
-        F --> K[/finish — FinishStep]
+        F --> G["/qualify - QualifyStep"]
+        F --> H["/profile - ProfileStep"]
+        F --> I["/preferences or /business-details"]
+        F --> J["/identity - IdentityStep"]
+        F --> K["/finish - FinishStep"]
     end
 
     subgraph Layout
         F --> L[StepIndicator]
         F --> M[DevPanel]
-        H & I & J --> N[NavButtons]
+        H --> N[NavButtons]
+        I --> N
+        J --> N
     end
 
-    subgraph "State & Data Flow"
-        C -->|currentStepId\ncompletedStepIds\nactiveFormSteps| F
-        G -->|useOnboardingConfig| O[mockOnboardingApi\ngetOnboardingConfig]
-        O -->|OnboardingConfig\nstep ID list| G
+    subgraph "State and Data Flow"
+        C -->|currentStepId, completedStepIds, activeFormSteps| F
+        G -->|useOnboardingConfig| O[mockOnboardingApi.getOnboardingConfig]
+        O -->|OnboardingConfig - step ID list| G
         G -->|applyConfig| C
-        H & I & J -->|useStepNavigation| P[completeStep mutation\n~350ms]
-        P -->|onSuccess → navigate| F
-        J -->|useSubmitOnboarding| Q[mockOnboardingApi\nsubmit]
+        H -->|useStepNavigation| P["completeStep mutation (~350ms)"]
+        I -->|useStepNavigation| P
+        J -->|useStepNavigation| P
+        P -->|onSuccess - navigate| F
+        J -->|useSubmitOnboarding| Q[mockOnboardingApi.submit]
     end
 
     subgraph Persistence
-        C -->|debounced save| R[localStorage\nnbt_progress]
+        C -->|debounced save| R[localStorage - nbt_progress]
         R -->|on load| C
     end
 
     subgraph Observability
-        G & F & H & I & J -->|useTelemetry\ntrack events| S[console.log\n→ PostHog swap]
+        G -->|useTelemetry| S["console.log (PostHog swap)"]
+        F -->|useTelemetry| S
+        H -->|useTelemetry| S
+        I -->|useTelemetry| S
+        J -->|useTelemetry| S
     end
 ```
 
